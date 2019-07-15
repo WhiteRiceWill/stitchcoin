@@ -30,8 +30,8 @@ if (productionMode) {
 
   // SSL options
   const options = {
-    key: fs.readFileSync('chatcircles.key'),
-    cert: fs.readFileSync('certificates/chatcircles.crt'),
+    key: fs.readFileSync('stitchcoin.key'),
+    cert: fs.readFileSync('certificates/stitchcoin.crt'),
     ca: [fs.readFileSync('certificates/gd1.crt'), fs.readFileSync('certificates/gd2.crt')]
   };
 
@@ -124,7 +124,7 @@ else {
 
 // Redirect http to https
 httpApp.get('*', function (req, res) {
-  res.redirect('https://chatcircles.com' + req.url);
+  res.redirect('https://stitchcoin.xyz' + req.url);
 })
 
 
