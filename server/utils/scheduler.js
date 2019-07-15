@@ -3,6 +3,9 @@ const User = require('../models/user.js');
 const schedule = require('node-schedule');
 
 const startSchedule = () => {
+  // Initial sync
+  syncWithSlack();
+
   // Hourly Update at minute 59
   schedule.scheduleJob('59 * * * *', () => {
     syncWithSlack();
