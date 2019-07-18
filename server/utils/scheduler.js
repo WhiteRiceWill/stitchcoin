@@ -1,6 +1,29 @@
 const fetch = require('node-fetch');
-const User = require('../models/user.js');
 const schedule = require('node-schedule');
+const User = require('../models/user.js');
+
+const parseResponse = (json) => {
+  const usersArr = json.members;
+  const usersObj = {};
+
+  for (let user of usersArr) {
+    if (!user.is_bot && !user.deleted && user.id !== 'USLACKBOT') {
+      usersObj[user.id] = user;
+    }
+  }
+
+  return usersObj;
+};
+
+const syncWithSlack = async () => {
+  try {
+    const response = await fetch(`https://slack.com/api/users.list?token=${slackAccessToken}`);
+    const json = await response.json();
+    const slackUsers = parseResponse(json);
+
+    User.hourlyUpdate(slackUsers);
+  } catch (err) {}
+}
 
 const startSchedule = () => {
   // Initial sync
@@ -15,32 +38,6 @@ const startSchedule = () => {
   schedule.scheduleJob('0 7 * * *', () => {
     User.dailyUpdate();
   });
-}
-
-const syncWithSlack = async () => {
-  try {
-    const response = await fetch(`https://slack.com/api/users.list?token=${slackAccessToken}`);
-    const json = await response.json();
-    const slackUsers = parseResponse(json);
-
-    User.hourlyUpdate(slackUsers);
-  }
-
-  catch (err) {
-  }
-}
-
-const parseResponse = json => {
-  const usersArr = json.members;
-  let usersObj = {};
-
-  for (let user of usersArr) {
-    if (!user.is_bot && !user.deleted && user.id !== 'USLACKBOT') {
-      usersObj[user.id] = user;
-    }
-  }
-
-  return usersObj;
-}
+};
 
 module.exports = startSchedule;

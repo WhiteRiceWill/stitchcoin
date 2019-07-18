@@ -9,12 +9,12 @@ const parseSlashCommand = (req) => {
     wordArr = wordArr.filter(element => element !== '');
     const reason = wordArr.slice(3).join(' ');
 
-    if (!wordArr[0].startsWith('<@')){
+    if (!wordArr[0].startsWith('<@')) {
       throw new Error();
     }
 
     if (wordArr[0].charAt(wordArr[0].length - 1) !== '>') {
-      let splitWord = wordArr[0].split('>');
+      const splitWord = wordArr[0].split('>');
       wordArr[0] = `${splitWord[0]}>`;
       wordArr.splice(1, 0, splitWord[1]);
     }
@@ -38,12 +38,9 @@ const parseSlashCommand = (req) => {
     transferObj.reason = reason;
 
     return (transferObj);
-    
-  }
-  catch (err) {
+  } catch (err) {
     throw new Error('incorrect_slash_command_format');
   }
-}
-
+};
 
 module.exports = parseSlashCommand;

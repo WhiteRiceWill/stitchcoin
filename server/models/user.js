@@ -6,40 +6,38 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    sparse: true
+    sparse: true,
   },
   slackUsername: {
-    type: String
+    type: String,
   },
   slackAvatarUrl: {
-    type: String
+    type: String,
   },
   creationDate: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   wallet: {
     type: Number,
-    default: 10
+    default: 10,
   },
 },
 {
-  collection: 'users'
-})
+  collection: 'users',
+});
 
 UserSchema.statics.dailyUpdate = async () => {
   try {
     // +1 to all wallets
     await User.updateMany({}, { $inc: { wallet: 1 } });
-  }
+  } catch (err) {}
+};
 
-  catch (err) {}
-}
-
-UserSchema.statics.hourlyUpdate = async slackUsers => {
+UserSchema.statics.hourlyUpdate = async (slackUsers) => {
   try {
-    //Get user
-    let dbUsers = await User.find({});
+    // Get user
+    const dbUsers = await User.find({});
 
     // Update or delete users
     if (dbUsers) {
@@ -47,6 +45,7 @@ UserSchema.statics.hourlyUpdate = async slackUsers => {
         if (slackUsers[dbUser.slackUserId]) {
           dbUser.slackUsername = slackUsers[dbUser.slackUserId].profile.display_name;
           dbUser.slackAvatarUrl = slackUsers[dbUser.slackUserId].profile.image_192;
+
           await dbUser.save();
 
           slackUsers[dbUser.slackUserId].visited = true;
@@ -57,24 +56,21 @@ UserSchema.statics.hourlyUpdate = async slackUsers => {
     }
 
     // Add new users
-    Object.keys(slackUsers).forEach(key => {
+    Object.keys(slackUsers).forEach((key) => {
       if (!slackUsers[key].visited) {
         User.create({
           slackUserId: key,
           slackUsername: slackUsers[key].profile.display_name,
-          slackAvatarUrl: slackUsers[key].profile.image_192
-        })
+          slackAvatarUrl: slackUsers[key].profile.image_192,
+        });
       }
     });
+  } catch (err) {
+    throw err;
   }
-
-  catch (err) {
-    throw err
-  }
-}
+};
 
 UserSchema.statics.transfer = async (fromId, toId, amount) => {
-
   // These need to be up here so the catch part has access to them I believe
   const session = await User.startSession();
   session.startTransaction();
@@ -84,7 +80,7 @@ UserSchema.statics.transfer = async (fromId, toId, amount) => {
     amount = Math.floor(amount * 1000) / 1000;
 
     // User can't send less than .1 coins
-    if (amount < .1) {
+    if (amount < 0.1) {
       throw new Error('min_send_threshold');
     }
 
@@ -115,7 +111,6 @@ UserSchema.statics.transfer = async (fromId, toId, amount) => {
 
     await session.commitTransaction();
     session.endSession();
-
   } catch (err) {
     // If an error occurred, abort the whole transaction and
     // undo any changes that might have happened
@@ -126,17 +121,16 @@ UserSchema.statics.transfer = async (fromId, toId, amount) => {
   }
 }
 
-UserSchema.statics.getLeaderboard = async (users) => {
+UserSchema.statics.getLeaderboard = async () => {
   try {
     const rawData = await User.find().sort({ wallet: -1 })
 
-    let lbData = []
+    const lbData = [];
 
     let rank = 0;
     let prevWallet = -1;
 
     for (let i = 0; i < rawData.length; i++) {
-
       const roundedWallet = (Math.floor(rawData[i].wallet * 1000) / 1000).toFixed(3);
 
       if (roundedWallet !== prevWallet) {
@@ -149,18 +143,15 @@ UserSchema.statics.getLeaderboard = async (users) => {
         url: rawData[i].slackAvatarUrl,
         username: rawData[i].slackUsername,
         wallet: roundedWallet,
-        rank: rank
-      })
+        rank: rank,
+      });
     };
 
     return lbData;
-  }
-  catch (err) {
+  } catch (err) {
     throw err;
   }
-}
-
-
+};
 
 // Model the user schema in Mongo
 const User = mongoose.model('User', UserSchema);
