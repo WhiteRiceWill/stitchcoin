@@ -2,8 +2,8 @@ const fetch = require('node-fetch');
 const schedule = require('node-schedule');
 const User = require('../models/user.js');
 
-const parseResponse = (json) => {
-  const usersArr = json.members;
+const parseResponse = (data) => {
+  const usersArr = data.members;
   const usersObj = {};
 
   for (let user of usersArr) {
@@ -18,8 +18,8 @@ const parseResponse = (json) => {
 const syncWithSlack = async () => {
   try {
     const response = await fetch(`https://slack.com/api/users.list?token=${slackAccessToken}`);
-    const json = await response.json();
-    const slackUsers = parseResponse(json);
+    const data = await response.json();
+    const slackUsers = parseResponse(data);
 
     User.hourlyUpdate(slackUsers);
   } catch (err) {}

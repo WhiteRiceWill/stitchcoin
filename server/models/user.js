@@ -140,12 +140,13 @@ UserSchema.statics.getLeaderboard = async () => {
       prevWallet = roundedWallet;
 
       lbData.push({
+        id: rawData[i].slackUserId,
         url: rawData[i].slackAvatarUrl,
         username: rawData[i].slackUsername,
         wallet: roundedWallet,
         rank: rank,
       });
-    };
+    }
 
     return lbData;
   } catch (err) {
