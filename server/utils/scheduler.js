@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const schedule = require('node-schedule');
+const Agenda = require('agenda');
 const User = require('../models/user.js');
 
 const parseResponse = (data) => {
@@ -22,22 +22,45 @@ const syncWithSlack = async () => {
     const slackUsers = parseResponse(data);
 
     User.hourlyUpdate(slackUsers);
-  } catch (err) {}
-}
+  } catch (err) {};
+};
+
+const getLeaderboard = async () => {
+  try {
+    leaderboardData = await User.getLeaderboard();
+  } catch (err) {};
+};
 
 const startSchedule = () => {
   // Initial sync
   syncWithSlack();
+  getLeaderboard();
 
-  // Hourly Update at minute 59
-  schedule.scheduleJob('59 * * * *', () => {
+  const agenda = new Agenda({ db: { address: global.dbUri } });
+
+  agenda.processEvery('1 second');
+
+  agenda.define('get leaderboard', () => {
+    getLeaderboard();
+  });
+
+  agenda.define('sync with slack', () => {
     syncWithSlack();
+    console.log('Hourly sync with slack happened');
   });
 
-  // Daily update at midnight
-  schedule.scheduleJob('0 7 * * *', () => {
+  agenda.define('daily update', () => {
     User.dailyUpdate();
+    console.log('Daily update happened');
   });
+
+  (async () => {
+    await agenda.start();
+    await agenda.cancel();
+    await agenda.every('2 seconds', 'get leaderboard');
+    await agenda.every('59 * * * *', 'sync with slack');
+    await agenda.every('0 7 * * *', 'daily update');
+  })();
 };
 
 module.exports = startSchedule;

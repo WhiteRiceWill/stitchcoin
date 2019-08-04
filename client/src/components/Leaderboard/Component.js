@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import styles from './Leaderboard.module.css';
-import LeaderboardSlot from '../LeaderboardSlot/Component.js';
+import LeaderboardSlot from '../LeaderboardSlot/Component';
+import Coin from '../Coin/Component';
 
 class Leaderboard extends Component {
-
   constructor(props) {
     super(props);
 
     this.state = {
-      leaderboard: null
+      leaderboard: null,
     };
 
     this.getLeaderboard = this.getLeaderboard.bind(this);
@@ -31,49 +31,33 @@ class Leaderboard extends Component {
       const data = await response.json();
 
       this.setState({
-        leaderboard: data.leaderboard
+        leaderboard: data.leaderboard,
       });
-    } catch (err) {}
+    } catch (err) {};
   }
 
   render() {
-    let leaderboard = null;
+    let leaderboardItems = null;
+    const { leaderboard } = this.state;
 
-    if (this.state.leaderboard !== null) {
-      leaderboard = this.state.leaderboard.map(user =>
+    if (leaderboard) {
+      leaderboardItems = leaderboard.map(user => (
         <LeaderboardSlot
           key={user.id}
-          id={user.id}
           username={user.username}
           wallet={user.wallet}
           rank={user.rank}
           url={user.url}
         />
-      )
+      ));
     }
 
     return (
       <div className={styles.page}>
         <div className={styles.middlePage}>
-
-        <div className={styles.coin}>
-          <div className={styles.coin__front}></div>
-          <div className={styles.coin__edge}>
-            <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-            <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-            <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-            <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-            <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-            <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-            <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-            <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-
-          </div>
-          <div className={styles.coin__back}></div>
-        </div>
-
-        {leaderboard}
-
+          <Coin />
+          {leaderboardItems}
+          <div className={styles.footer} />
         </div>
       </div>
     );
@@ -81,4 +65,3 @@ class Leaderboard extends Component {
 }
 
 export default Leaderboard;
-

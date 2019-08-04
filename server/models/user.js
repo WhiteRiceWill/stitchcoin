@@ -31,7 +31,7 @@ UserSchema.statics.dailyUpdate = async () => {
   try {
     // +1 to all wallets
     await User.updateMany({}, { $inc: { wallet: 1 } });
-  } catch (err) {}
+  } catch (err) {};
 };
 
 UserSchema.statics.hourlyUpdate = async (slackUsers) => {
@@ -41,7 +41,7 @@ UserSchema.statics.hourlyUpdate = async (slackUsers) => {
 
     // Update or delete users
     if (dbUsers) {
-      for (let dbUser of dbUsers) {
+      for (const dbUser of dbUsers) {
         if (slackUsers[dbUser.slackUserId]) {
           dbUser.slackUsername = slackUsers[dbUser.slackUserId].profile.display_name;
           dbUser.slackAvatarUrl = slackUsers[dbUser.slackUserId].profile.image_192;
@@ -71,7 +71,6 @@ UserSchema.statics.hourlyUpdate = async (slackUsers) => {
 };
 
 UserSchema.statics.transfer = async (fromId, toId, amount) => {
-  // These need to be up here so the catch part has access to them I believe
   const session = await User.startSession();
   session.startTransaction();
 
@@ -123,7 +122,7 @@ UserSchema.statics.transfer = async (fromId, toId, amount) => {
 
 UserSchema.statics.getLeaderboard = async () => {
   try {
-    const rawData = await User.find().sort({ wallet: -1 })
+    const rawData = await User.find().sort({ wallet: -1 });
 
     const lbData = [];
 

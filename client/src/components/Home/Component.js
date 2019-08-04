@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import styles from './Home.module.css';
-import Leaderboard from '../Leaderboard/Component.js';
+import Leaderboard from '../Leaderboard/Component';
 
 class Home extends Component {
   render() {

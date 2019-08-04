@@ -45,7 +45,7 @@ router.post('/transfer', async (req, res) => {
       responseObj.text = "❌ Oops! Your transaction failed because the formatting wasn't quite right. Take a look at the correctly formatted example below:";
       responseObj.attachments = [
         {
-          text: '/thank @matt 5 coins for helping fix the bug!',
+          text: '/thank @matthew 2.5 coins for helping me fix the bug!',
         },
       ];
     } else if (err.message === 'min_send_threshold') {

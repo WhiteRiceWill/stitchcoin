@@ -8,12 +8,11 @@ const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const startSchedule = require('./utils/scheduler.js');
-const startLeaderboardUtil = require('./utils/leaderboard.js');
 
 // Config global variables to ENVs
 global.leaderboardData = null;
 global.productionMode = false;
-if (process.env.NODE_ENV == 'production') {
+if (process.env.NODE_ENV === 'production') {
   productionMode = true;
 }
 global.dbUri = process.env.DB_URI;
@@ -149,4 +148,3 @@ app.use((req, res) => {
 });
 
 startSchedule();
-startLeaderboardUtil();
